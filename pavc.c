@@ -15,6 +15,7 @@
 
 #include <pulse/operation.h>
 #include <pulse/pulseaudio.h>
+#include <pulse/volume.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -39,11 +40,14 @@
         } while (0)
 
 #define PAVC_INIT \
-        { 0, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0 }
+        { { 0 }, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0 }
 
 
 struct pa_volume_ctrl {
-        unsigned int value;
+        union {
+                const char* str;
+                unsigned int num;
+        } v;
         void (*usercmd)(const pa_sink_info* si);
         pa_threaded_mainloop* ml;
         pa_mainloop_api* mlapi;
@@ -52,6 +56,7 @@ struct pa_volume_ctrl {
         const pa_sink_info** si;
         size_t slen;
         size_t scap;
+        unsigned char running : 1;
 };
 
 
@@ -66,6 +71,7 @@ static void waitop(pa_operation_state_t state);
 static void cmd_down(const pa_sink_info* si);
 static void cmd_up(const pa_sink_info* si);
 static void cmd_toggle(const pa_sink_info* si);
+static void cmd_volume(const pa_sink_info* si);
 static void initpa(void);
 static void connect(void (*state_change_cb)(pa_context *ctx, void *ud));
 static void getsilist(void);
@@ -93,10 +99,17 @@ static void
 cleanup()
 {
         if (pavc.ml) {
-                if (pavc.ctx)
+                if (pavc.ctx) {
+                        if(pa_context_get_state(pavc.ctx) == PA_CONTEXT_READY)
+                                pa_context_disconnect(pavc.ctx);
                         pa_context_unref(pavc.ctx);
+                } 
                 if (pavc.op)
                         pa_operation_unref(pavc.op);
+                if (pavc.running) {
+                        pa_threaded_mainloop_unlock(pavc.ml);
+                        pa_threaded_mainloop_stop(pavc.ml);
+                }
                 pa_threaded_mainloop_free(pavc.ml);
         }
         if (pavc.si)
@@ -107,8 +120,10 @@ static void
 usage(void)
 {
         die("usage: pavc [command [value]]\r\n"
-            "       command - up | down | toggle\r\n"
-            "       value   - 0..100 (%)\r\n");
+            "             toggle\r\n"
+            "             up       0..100 (%)\r\n"
+            "             down     0..100 (%)\r\n"
+            "             volume   percent | decibel\r\n");
 }
 
 static void
@@ -177,7 +192,7 @@ static void
 cmd_down(const pa_sink_info *si)
 {
         pa_cvolume cvnew = si->volume;
-        pa_volume_t dec = (PA_VOLUME_NORM * (pavc.value / 100.0));
+        pa_volume_t dec = (PA_VOLUME_NORM * (pavc.v.num / 100.0));
 
         if(!pa_cvolume_dec(&cvnew, dec))
                 die("pavc: pa_cvolume_dec() failed.\r\n");
@@ -188,7 +203,7 @@ static void
 cmd_up(const pa_sink_info *si)
 {
         pa_cvolume cvnew = si->volume;
-        pa_volume_t inc = (PA_VOLUME_NORM * (pavc.value / 100.0));
+        pa_volume_t inc = (PA_VOLUME_NORM * (pavc.v.num / 100.0));
 
         if(!pa_cvolume_inc_clamp(&cvnew, inc, PA_VOLUME_NORM))
                 die("pavc: pa_cvolume_inc_clamp() failed.\n\r");
@@ -207,6 +222,23 @@ cmd_toggle(const pa_sink_info *si)
 }
 
 static void
+cmd_volume(const pa_sink_info* si)
+{
+        const pa_cvolume* cv = &si->volume;
+        float avg = (float)pa_cvolume_avg(cv);
+
+        if(!strcmp(pavc.v.str, "percent"))
+                printf("%u", (unsigned int)((avg / (float)PA_VOLUME_NORM) * 100.0));
+        else if(!strcmp(pavc.v.str, "decibel"))
+                printf("%g", pa_sw_volume_to_dB(avg));
+        else
+                usage();
+        fflush(stdout);
+        if(ferror(stdout))
+                die("pavc: ferror().\n\r");
+}
+
+static void
 initpa(void)
 {
         if (!(pavc.ml = pa_threaded_mainloop_new()))
@@ -215,6 +247,10 @@ initpa(void)
                 die("pavc: pa_threaded_mainloop_get_api() failed.\r\n");
         if (!(pavc.ctx = pa_context_new(pavc.mlapi, "psvc")))
                 die("pavc: pa_context_new() failed.\r\n");
+        if(pa_threaded_mainloop_start(pavc.ml) < 0)
+                die("pavc: pa_threaded_mainloop_start() failed.\r\n");
+        pavc.running = 1;
+
 }
 
 static void
@@ -251,6 +287,10 @@ parse_args(int argc, char** argv)
                 return;
         } else if (argc != 3) {
                 usage();
+        } else if(!strcmp(argcmd, "volume")) {
+                pavc.usercmd = cmd_volume;
+                pavc.v.str = argv[2];
+                return;
         } else if (!strcmp(argcmd, "up")) {
                 pavc.usercmd = cmd_up;
         } else if (!strcmp(argcmd, "down")) {
@@ -259,7 +299,7 @@ parse_args(int argc, char** argv)
                 usage();
         if (strlen(argv[2]) > 3 || stoui(argv[2], &value))
                 usage();
-        pavc.value = value;
+        pavc.v.num = value;
 }
 
 int 
@@ -267,15 +307,11 @@ main(int argc, char** argv)
 {
         parse_args(argc, argv);
         initpa();
-        pa_threaded_mainloop_start(pavc.ml);
         pa_threaded_mainloop_lock(pavc.ml);
         connect(state_change_callback);
         getsilist();
         for (size_t i = 0; i < pavc.slen; i++)
                 pavc.usercmd(pavc.si[i]);
-        pa_context_disconnect(pavc.ctx);
-        pa_threaded_mainloop_unlock(pavc.ml);
-        pa_threaded_mainloop_stop(pavc.ml);
         cleanup();
         return 0;
 }

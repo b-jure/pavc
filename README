@@ -9,10 +9,12 @@ I made this purely because it fit nicely with dmenu and dwm.
 
 
 USAGE
-pavc            (displays usage)
-pavc up 10      (this increases the sink devices volume by 10%)
-pavc down 10    (this decreases the sink devices volume by 10%)
-pavc toggle     (toggles mute, if already muted then unmute)
+pavc                    (displays usage)
+pavc up 10              (this increases the sink devices volume by 10%)
+pavc down 10            (this decreases the sink devices volume by 10%)
+pavc toggle             (toggles mute, if already muted then unmute)
+pavc volume percent     (displays the current volume level of sink devices as percentage)
+pavc volume decibel     (displays the current volume level of sink devices in decibels)
 
 You additionally can check usage after installing with 'man pavc'.
 

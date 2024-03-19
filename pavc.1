@@ -15,16 +15,21 @@ From there it executes user command on each sink device that pulseaudio server r
 .SH COMMANDS
 .TP
 .B toggle
-toggles the volume of the sink device. \
+Toggles the volume of the sink device. \
 If the device was previously muted, then it shall be un-muted otherwise it gets muted.
 .TP
 .B up
-increase the volume of the sink device. \
+Increase the volume of the sink device. \
 Number \fIvalue\fP must be provided and it has to be between \fB0\fP and \fB100\fP (%).
 .TP
 .B down
-decrease the volume of the sink device. \
+Decrease the volume of the sink device. \
 Number \fIvalue\fP must be provided and it has to be between \fB0\fP and \fB100\fP (%).
+.TP
+.B volume
+Display the current volume level of sink devices. \
+Format \fIvalue\fP must be provided to properly display the volume level. \
+Available formats are \fIpercent\fP and \fIdecibel\fP.
 
 .SH AUTHOR
 Written by B. Jure.
