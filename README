@@ -1,0 +1,54 @@
+------
+ABOUT|
+-------------------------------------------------------------------------
+pavc short for pulseaudio volume control is a cli tool used to interface|
+with the pulseaudio (sound server).                                     |
+As the name itself suggests pavc controls sink devices volume levels.   |
+The program itself is very minimal and is written in C, if you know     |
+some C and a bit about pulseaudio API then you could easily extend this |
+program to support more commands on sink devices!                       |
+I made this purely because it fit nicely with dmenu and dwm.            |
+-------------------------------------------------------------------------
+
+------
+USAGE|
+-------------------------------------------------------------------
+pavc            (displays usage)                                  |
+pavc up 10      (this increases the sink devices volume by 10%)   |
+pavc down 10    (this decreases the sink devices volume by 10%)   |
+pavc toggle     (toggles mute, if already muted then unmute)      |
+                                                                  |
+You additionally can check usage after installing with 'man pavc'.|
+-------------------------------------------------------------------
+
+-------------
+DEPENDENCIES|
+-------------
+pulseaudio|
+-----------
+
+------
+BUILD|
+----------------------------------------------------------------
+To build the pavc clone the repo, then inside of it run 'make'.|
+Before installing or building you can configure the Makefile by|
+editing 'config.mk'.                                           |
+----------------------------------------------------------------
+
+--------
+INSTALL|
+------------------------------------------
+Run 'make install', add 'sudo' if needed.|
+------------------------------------------
+
+----------
+UNINSTALL|
+--------------------------------------------
+Run 'make uninstall', add 'sudo' if needed.|
+--------------------------------------------
+
+-------------
+DISTRIBUTING|
+-----------------
+Run 'make dist'.|
+-----------------

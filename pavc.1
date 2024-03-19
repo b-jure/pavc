@@ -1,0 +1,33 @@
+.TH pavc 1 "19.03.2024" "version 1.0.0"
+
+.SH NAME
+pavc - pulseaudio volume control
+
+.SH SYNOPSIS
+.B pavc [\fIcommand\fP [\fIvalue\fP]]
+
+.SH DESCRIPTION
+pavc is a cli tool for controlling volume of sink devices. \
+It simply connects to pulseaudio sound server and requests information of all \
+available sink devices. \
+From there it executes user command on each sink device that pulseaudio server returned.
+
+.SH COMMANDS
+.TP
+.B toggle
+toggles the volume of the sink device. \
+If the device was previously muted, then it shall be un-muted otherwise it gets muted.
+.TP
+.B up
+increase the volume of the sink device. \
+Number \fIvalue\fP must be provided and it has to be between \fB0\fP and \fB100\fP (%).
+.TP
+.B down
+decrease the volume of the sink device. \
+Number \fIvalue\fP must be provided and it has to be between \fB0\fP and \fB100\fP (%).
+
+.SH AUTHOR
+Written by B. Jure.
+
+.SH SEE ALSO
+.B pulseaudio(1)
