@@ -1,31 +1,41 @@
 # pavc version
-VERSION = 1.0.0
+VERSION = 1.1.0
 
-# Makefile configuration below
 
 # paths
 PREFIX = /usr/local
-MANPREFIX = $(PREFIX)/share/man
+MANPREFIX = ${PREFIX}/share/man
+
 
 # Pulseaudio
 PAINC = /usr/include
 PALIB = /usr/lib
 
-# Uncomment and use these flags to create a debug build
-# You do require google's AddressSanitizer though
-# AddressSanitizer
-# ASANLIB = /usr/lib
-# ASANFLAGS = -fsanitize=address -fsanitize=undefined
-# ASANLDFLAGS = -fsanitize=address -fsanitize=undefined
+
+# Address sanitizer
+#ASANFLAGS = -fsanitize=address -fsanitize=undefined
+
+
+# debug vars
+#DBGDEFS = -DPAVC_ASSERT
+#DBGFLAGS = -g
+
+
+# enables optimizations
+OPTS = -O2
+
 
 # includes and libraries
-INCS = -I$(PAINC)
-LIBS = -L$(PALIB) -lpulse 
+INCS = -I${PAINC}
+LIBS = -L${PALIB} -lpulse ${ASANFLAGS}
 
-# flags
+
+# compiler and linker flags
 CPPFLAGS = -D_POSIX_SOURCE_200809L
-CFLAGS   = -std=c99 -Wpedantic -Wall -Wextra ${INCS} ${CPPFLAGS}
+CFLAGS   = -std=c99 -Wpedantic -Wall -Wextra ${OPTS} ${DBGDEFS} ${DBGFLAGS} \
+	   ${INCS} ${CPPFLAGS} ${ASANFLAGS}
 LDFLAGS  = ${LIBS}
 
+
 # compiler and linker
-CC = cc
+CC = gcc

@@ -1,34 +1,39 @@
-.TH pavc 1 "19.03.2024" "version 1.0.0"
+.TH pavc 1 "10.07.2024" "version 1.1.0"
 
 .SH NAME
-pavc - pulseaudio volume control
+pavc - PulseAudio volume control
 
 .SH SYNOPSIS
-.B pavc [\fIcommand\fP [\fIvalue\fP]]
+.B pavc [\fIcommand\fP [\fIvalue\fP [\fIparam\fP]] [\fIsink_device_name\fP]]
 
 .SH DESCRIPTION
 pavc is a cli tool for controlling volume of sink devices. \
-It simply connects to pulseaudio sound server and requests information of all \
-available sink devices. \
-From there it executes user command on each sink device that pulseaudio server returned.
+It simply connects to PulseAudio sound server and requests information of all \
+(or specific) available sink devices. \
+From there it executes user command on each (or single specific) sink device that \
+PulseAudio server returned.
 
 .SH COMMANDS
 .TP
 .B toggle
 Toggles the volume of the sink device. \
-If the device was previously muted, then it shall be un-muted otherwise it gets muted.
+If the device was previously muted, then it shall be un-muted.
 .TP
 .B up
 Increase the volume of the sink device. \
-Number \fIvalue\fP must be provided and it has to be between \fB0\fP and \fB100\fP (%).
+Number \fIvalue\fP must be provided between \fB0\fP and \fB100\fP (%), in case the \
+\fIvalue\fP is greater than \fB100\fP or it overflows the current sound level \
+it will get clamped.
 .TP
 .B down
 Decrease the volume of the sink device. \
-Number \fIvalue\fP must be provided and it has to be between \fB0\fP and \fB100\fP (%).
+Number \fIvalue\fP must be provided between \fB0\fP and \fB100\fP (%), in case the \
+\fIvalue\fP is greater than \fB100\fP or it overflows the current sound level \
+it will get clamped.
 .TP
 .B volume
-Display the current volume level of sink devices. \
-Format \fIvalue\fP must be provided to properly display the volume level. \
+Display the current volume level of sink device. \
+Format \fIparam\fP must be provided to properly display the volume level. \
 Available formats are \fIpercent\fP and \fIdecibel\fP.
 
 .SH AUTHOR
