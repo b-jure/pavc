@@ -325,15 +325,24 @@ static void runthecommand(pavc_State *pavc, PavcCmd *cmd)
 }
 
 
+static void newstate(pavc_State **pavcp)
+{
+	if (p_unlikely((*pavcp = pavc_state_new(pavc_alloc, NULL)) == NULL)) {
+		fputs("pavc: state allocation failed.\n", stderr);
+		exit(EXIT_FAILURE);
+	}
+}
+
+
 int main(int argc, char** argv) 
 {
 	pavc_State *pavc;
 	PavcCmd cmd = { 0 };
 
-	pavc = pavc_state_new(pavc_alloc, NULL);
+	newstate(&pavc);
         parseargs(pavc, &cmd, argc, argv);
         initeventloop(pavc);
-	pavc_state_lockthreadedml(pavc);
+	pavc_state_lockthreadedml(pavc); /* get a lock */
         paconnect(pavc);
 	runthecommand(pavc, &cmd);
 	pavc_state_delete(pavc);
