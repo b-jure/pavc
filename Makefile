@@ -5,6 +5,7 @@
 include config.mk
 
 SRC = src/pavc.c src/pmem.c src/pstate.c
+HEADER = src/pmem.h src/pstate.h src/pcommon.h
 OBJ = ${SRC:.c=.o}
 
 all: options pavc
@@ -29,7 +30,7 @@ clean:
 dist: clean
 	mkdir -p pavc-${VERSION}
 	cp -r COPYING Makefile README config.mk \
-		pavc.1 util.h ${SRC} pavc-${VERSION}
+		pavc.1 ${HEADER} ${SRC} pavc-${VERSION}
 	tar -cf pavc-${VERSION}.tar pavc-${VERSION}
 	gzip pavc-${VERSION}.tar
 	rm -rf pavc-${VERSION}
