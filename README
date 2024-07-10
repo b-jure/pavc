@@ -1,26 +1,25 @@
 ABOUT
-pavc short for pulseaudio volume control is a cli tool used to interface
-with the pulseaudio (sound server).
-As the name itself suggests pavc controls sink devices volume levels.
-The program itself is very minimal and is written in C, if you know
-some C and a bit about pulseaudio API then you could easily extend this
-program to support more commands on sink devices!
-I made this purely because it fit nicely with dmenu and dwm.
+pavc short for PulseAudio volume control is a cli tool used to interface
+with the PulseAudio (sound server).
+As the name itself suggests pavc primarily controls sink device volume levels
+but it can also run other commands on them.
 
 
 USAGE
-pavc                    (displays usage)
-pavc up 10              (this increases the sink devices volume by 10%)
-pavc down 10            (this decreases the sink devices volume by 10%)
-pavc toggle             (toggles mute, if already muted then unmute)
-pavc volume percent     (displays the current volume level of sink devices as percentage)
-pavc volume decibel     (displays the current volume level of sink devices in decibels)
+- pavc                    (displays usage)
+- pavc up 10              (this increases the sink device volume by 10%)
+- pavc down 10            (this decreases the sink device volume by 10%)
+- pavc toggle             (toggles mute, if already muted then unmute)
+- pavc volume percent     (displays the current volume level of sink device as percentage)
+- pavc volume decibel     (displays the current volume level of sink device in decibels)
 
-You additionally can check usage after installing with 'man pavc'.
+You can also run commands on specific sink device:
+- pavc up 10 "my_sink_device_name"	(increases "my_sink_device_name" volume by 10%)
+this applies for all the other commands also.
 
 
 DEPENDENCIES
-- pulseaudio
+- pulseaudio shared library
 
 
 BUILD
@@ -28,14 +27,11 @@ To build the pavc clone the repo, then inside of it run 'make'.
 Before installing or building you can configure the Makefile by
 editing 'config.mk'.
 
-
 INSTALL
-Run 'make install', add 'sudo' if needed.
-
+'make install', add 'sudo' if needed.
 
 UNINSTALL
-Run 'make uninstall', add 'sudo' if needed.
-
+'make uninstall', add 'sudo' if needed.
 
 DISTRIBUTING
-Run 'make dist'.
+'make dist'.
