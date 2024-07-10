@@ -15,7 +15,7 @@ USAGE
 
 You can also run commands on specific sink device:
 - pavc up 10 "my_sink_device_name"	(increases "my_sink_device_name" volume by 10%)
-this applies for all the other commands also.
+this also applies for all the other commands.
 
 
 DEPENDENCIES
