@@ -26,11 +26,11 @@ static void sinkinfocb(pa_context* c, const pa_sink_info* si, int eol, void* ud)
 {
 	pavc_State *pavc;
 
-        UNUSED(c);
+	UNUSED(c);
 	UNUSED(eol);
 	pavc = (pavc_State*)ud;
 	if (si) pavc_state_addsinkinfo(pavc, si);
-        pavc_state_signalthreadedml(pavc, 0);
+	pavc_state_signalthreadedml(pavc, 0);
 }
 
 
@@ -38,9 +38,9 @@ static void statechangecb(pa_context* ctx, void* ud)
 {
 	pavc_State *pavc;
 
-        UNUSED(ctx);
+	UNUSED(ctx);
 	pavc = (pavc_State*)ud;
-        pavc_state_signalthreadedml(pavc, 0);
+	pavc_state_signalthreadedml(pavc, 0);
 }
 
 
@@ -48,10 +48,10 @@ static void ctxsuccesscb(pa_context *ctx, int success, void* ud)
 {
 	pavc_State *pavc;
 
-        UNUSED(ctx);
+	UNUSED(ctx);
 	UNUSED(success);
 	pavc = (pavc_State*)ud;
-        pavc_state_signalthreadedml(pavc, 0);
+	pavc_state_signalthreadedml(pavc, 0);
 }
 
 
@@ -67,7 +67,7 @@ static void initeventloop(pavc_State *pavc)
 static void paconnect(pavc_State *pavc)
 {
 	pavc_state_connect(pavc, statechangecb, pavc, NULL, PA_CONTEXT_NOFLAGS, NULL);
-        pavc_state_waitctxstate(pavc, PA_CONTEXT_READY);
+	pavc_state_waitctxstate(pavc, PA_CONTEXT_READY);
 }
 
 
@@ -82,7 +82,7 @@ static void getsilist(pavc_State *pavc)
 			pavc_state_error(pavc, err);
 		pavc_state_removeop(pavc);
 	} else {
-                pavc_state_error(pavc, "couldn't retrieve sink list");
+		pavc_state_error(pavc, "couldn't retrieve sink list");
 	}
 }
 
@@ -124,13 +124,13 @@ static void changevolume(pavc_State *pavc, const pa_sink_info *si, pa_cvolume *c
 	const char *err;
 
 	pavc_state_setsinkvolumeindex(pavc, si, cvnew, ctxsuccesscb, pavc);
-        if (pavc_state_haveop(pavc)) {
+	if (pavc_state_haveop(pavc)) {
 		pavc_state_waitopstate(pavc, PA_OPERATION_DONE);
 		if ((err = pavc_state_checkerror(pavc)))
 			pavc_state_error(pavc, err);
 		pavc_state_removeop(pavc);
 	} else {
-                pavc_state_error(pavc, "failed setting sink volume");
+		pavc_state_error(pavc, "failed setting sink volume");
 	}
 }
 
@@ -159,15 +159,15 @@ typedef struct PavcCmd {
 
 static void cmddown(pavc_State *pavc, const pa_sink_info *si, void *ud)
 {
-        pa_cvolume cvnew;
-        pa_volume_t dec;
+	pa_cvolume cvnew;
+	pa_volume_t dec;
 
 	cvnew = si->volume;
 	dec = scaleVOL(*(unsigned int *)ud);
 	if(pa_cvolume_dec(&cvnew, dec))
 		changevolume(pavc, si, &cvnew);
 	else
-                pavc_state_error(pavc, "failed decrementing volume");
+		pavc_state_error(pavc, "failed decrementing volume");
 }
 
 
@@ -191,7 +191,7 @@ static void cmdtoggle(pavc_State *pavc, const pa_sink_info *si, void *ud)
 
 	UNUSED(ud);
 	pavc_state_setsinkmuteindex(pavc, si, si->mute^1, ctxsuccesscb, pavc);
-        if (pavc_state_haveop(pavc)) {
+	if (pavc_state_haveop(pavc)) {
 		pavc_state_waitopstate(pavc, PA_OPERATION_DONE);
 		if ((err = pavc_state_checkerror(pavc)))
 			pavc_state_error(pavc, err);
@@ -205,15 +205,15 @@ static void cmdtoggle(pavc_State *pavc, const pa_sink_info *si, void *ud)
 static void cmdvolume(pavc_State *pavc, const pa_sink_info* si, void *ud)
 {
 	const char *unit;
-        double avg;
+	pa_volume_t avg;
 
 	unit = *(const char **)ud;
-	avg = (double)pa_cvolume_avg(&si->volume);
-        if(!strcmp(unit, "percent")) {
-		avg = (avg / (double)PA_VOLUME_NORM) * 100.0;
-                printf("%u", (unsigned int)avg);
+	avg = pa_cvolume_avg(&si->volume);
+	if(!strcmp(unit, "percent")) {
+		avg = ((double)avg / (double)PA_VOLUME_NORM) * 100.0;
+		printf("%u", (unsigned int)avg);
 	} else if(!strcmp(unit, "decibel")) {
-                printf("%g", pa_sw_volume_to_dB(avg));
+		printf("%g", (double)pa_sw_volume_to_dB(avg));
 	} else {
 		pavc_state_error(pavc, "invalid unit for 'volume' (try decibel or percent)");
 	}
@@ -224,13 +224,13 @@ static int strtovolume(const char *str, unsigned int *vol)
 {
         int c;
 
-        *vol = 0;
+	*vol = 0;
 	if (*str == '0') {
 		if (str[1] != '\0')
 			return -1;
 		return 0;
 	}
-        while((c = *str++)) {
+	while((c = *str++)) {
 		if (isdigit(c)) *vol = *vol * 10 + (c - '0');
 		else return -1;
 	}
@@ -340,11 +340,11 @@ int main(int argc, char** argv)
 	PavcCmd cmd = { 0 };
 
 	newstate(&pavc);
-        parseargs(pavc, &cmd, argc, argv);
-        initeventloop(pavc);
+	parseargs(pavc, &cmd, argc, argv);
+	initeventloop(pavc);
 	pavc_state_lockthreadedml(pavc); /* get a lock */
-        paconnect(pavc);
+	paconnect(pavc);
 	runthecommand(pavc, &cmd);
 	pavc_state_delete(pavc);
-        return 0;
+	return 0;
 }
